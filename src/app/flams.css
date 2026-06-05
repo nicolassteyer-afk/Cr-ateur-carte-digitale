@@ -147,10 +147,86 @@
   top: -8px;
 }
 
+.flams-badge-image {
+  height: auto;
+  position: absolute;
+  right: -12px;
+  top: -14px;
+  transform: rotate(-10deg);
+  width: 54px;
+  z-index: 2;
+}
+
 .flams-product-icon {
   height: 20px;
   object-fit: contain;
   width: 20px;
+}
+
+.flams-price-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.flams-price-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.flams-price-row span {
+  color: #61181e;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.flams-price-row strong {
+  background: rgba(248, 175, 7, 0.14);
+  border-radius: 999px;
+  color: #e20e17;
+  padding: 3px 8px;
+}
+
+.flams-alert {
+  border-radius: 12px;
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  text-align: center;
+}
+
+.flams-alert h3,
+.flams-alert p {
+  margin: 0;
+}
+
+.flams-alert h3 {
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.flams-alert p {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.flams-alert.formula {
+  background: #e20e17;
+  color: #ffffff;
+}
+
+.flams-alert.flame {
+  background: #f8af07;
+  color: #c8102e;
+}
+
+.flams-alert.info {
+  background: #fff4d5;
+  border: 1px solid #f8af07;
+  color: #61181e;
 }
 
 .flams-promo {
@@ -376,4 +452,51 @@
 
 .preview-block {
   min-width: 0;
+}
+
+.preview-tabs,
+.preview-subtabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.preview-tabs {
+  background: #fffdec;
+  border-bottom: 2px solid #f8af07;
+}
+
+.preview-subtabs {
+  background: #fff4d5;
+  border-bottom: 1px solid rgba(97, 24, 30, 0.14);
+}
+
+.preview-tab,
+.preview-subtab {
+  border-radius: 999px;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 800;
+  height: 30px;
+  padding: 0 11px;
+  text-transform: uppercase;
+}
+
+.preview-tab {
+  background: transparent;
+  color: #61181e;
+}
+
+.preview-subtab {
+  background: #ffffff;
+  border: 1px solid rgba(97, 24, 30, 0.12);
+  color: #61181e;
+}
+
+.preview-tab.active,
+.preview-subtab.active {
+  background: #f8af07;
+  color: #61181e;
 }
