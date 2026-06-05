@@ -1,9 +1,6 @@
 import type {
   BlockPropsByType,
   BlockType,
-  CategoryDescriptionBlockProps,
-  DividerBlockProps,
-  DrinkSubTabsBlockProps,
   ImageBlockProps,
   MenuCategoryBlockProps,
   MenuTabsBlockProps,
@@ -12,6 +9,10 @@ import type {
   RecommendBlockProps,
   SectionBlockProps,
   TextBlockProps,
+  AlertBlockProps,
+  CategoryDescriptionBlockProps,
+  DividerBlockProps,
+  DrinkSubTabsBlockProps,
 } from "./types";
 
 export function createDefaultBlockProps<TType extends BlockType>(
@@ -53,14 +54,22 @@ export function createDefaultBlockProps<TType extends BlockType>(
     product: {
       title: "Nom du produit",
       price: "9.90 EUR",
+      priceRows: "",
       description: "Description du produit",
       category: "formules",
       subcategory: "",
       badge: "",
+      badgeImageUrl: "",
       iconUrl: "",
       imageUrl: "",
       variant: "standard",
     } satisfies ProductBlockProps,
+    alert: {
+      title: "Information",
+      body: "Message important de la carte.",
+      category: "formules",
+      variant: "info",
+    } satisfies AlertBlockProps,
     promo: {
       title: "Lance-Flam's",
       body: "Un encart promotionnel visible dans une categorie.",
