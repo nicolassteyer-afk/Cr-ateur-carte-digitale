@@ -74,6 +74,12 @@ function getBlockCategory(block: CardBlock) {
   return "";
 }
 
+function getBlockSubcategory(block: CardBlock) {
+  const props = block.props as Partial<{ subcategory: string }>;
+
+  return props.subcategory ?? "";
+}
+
 export function CardBuilder() {
   const [card, setCard] = useState<DigitalCard>(() => createCard());
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -86,6 +92,8 @@ export function CardBuilder() {
   } | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [workspaceMode, setWorkspaceMode] = useState<"edit" | "preview">("edit");
+  const [previewCategory, setPreviewCategory] = useState("formules");
+  const [previewSubcategory, setPreviewSubcategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedBlock = useMemo(
@@ -129,6 +137,48 @@ export function CardBuilder() {
     });
   }, [activeCategory, card.blocks]);
 
+  const previewSubcategories = useMemo(() => {
+    const subcategorySet = new Set<string>();
+
+    card.blocks.forEach((block) => {
+      if (getBlockCategory(block) === previewCategory) {
+        const subcategory = getBlockSubcategory(block);
+
+        if (subcategory) {
+          subcategorySet.add(subcategory);
+        }
+      }
+    });
+
+    return Array.from(subcategorySet);
+  }, [card.blocks, previewCategory]);
+
+  const previewBlocks = useMemo(() => {
+    const category =
+      categories.includes(previewCategory) || previewCategory === "all"
+        ? previewCategory
+        : categories[0] ?? "all";
+
+    return card.blocks.filter((block) => {
+      const blockCategory = getBlockCategory(block);
+      const blockSubcategory = getBlockSubcategory(block);
+
+      if (category === "all") {
+        return true;
+      }
+
+      if (blockCategory === "global") {
+        return false;
+      }
+
+      if (blockCategory !== category) {
+        return false;
+      }
+
+      return !previewSubcategory || !blockSubcategory || blockSubcategory === previewSubcategory;
+    });
+  }, [card.blocks, categories, previewCategory, previewSubcategory]);
+
   useEffect(() => {
     const stored = loadStoredCard();
 
@@ -147,6 +197,21 @@ export function CardBuilder() {
       setActiveCategory("all");
     }
   }, [activeCategory, categories]);
+
+  useEffect(() => {
+    if (categories.length > 0 && !categories.includes(previewCategory)) {
+      setPreviewCategory(categories[0]);
+    }
+  }, [categories, previewCategory]);
+
+  useEffect(() => {
+    if (
+      previewSubcategory &&
+      !previewSubcategories.includes(previewSubcategory)
+    ) {
+      setPreviewSubcategory("");
+    }
+  }, [previewSubcategories, previewSubcategory]);
 
   function updateCard(updater: (current: DigitalCard) => DigitalCard) {
     setCard((current) => touchCard(updater(current)));
@@ -217,8 +282,7 @@ export function CardBuilder() {
     if (data.source === "palette" && data.type) {
       const newBlock = prepareBlockForActiveCategory(createBlock(data.type));
       const overIndex = card.blocks.findIndex((block) => block.id === over.id);
-      const insertIndex =
-        over.id === "canvas" || overIndex < 0 ? card.blocks.length : overIndex;
+      const insertIndex = over.id === "canvas" || overIndex < 0 ? card.blocks.length : overIndex;
 
       updateCard((current) => ({
         ...current,
@@ -370,11 +434,7 @@ export function CardBuilder() {
                 ))}
               </div>
             </div>
-            <button
-              className="text-button primary"
-              onClick={loadFlamsTemplate}
-              type="button"
-            >
+            <button className="text-button primary" onClick={loadFlamsTemplate} type="button">
               Modele Flam's
             </button>
           </div>
@@ -491,11 +551,49 @@ export function CardBuilder() {
                     <span>Carte digitale</span>
                     <strong>{card.title}</strong>
                   </header>
+                  {categories.length > 0 ? (
+                    <nav className="preview-tabs" aria-label="Navigation carte">
+                      {categories.map((category) => (
+                        <button
+                          className={`preview-tab ${previewCategory === category ? "active" : ""}`}
+                          key={category}
+                          onClick={() => {
+                            setPreviewCategory(category);
+                            setPreviewSubcategory("");
+                          }}
+                          type="button"
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </nav>
+                  ) : null}
+                  {previewSubcategories.length > 0 ? (
+                    <nav className="preview-subtabs" aria-label="Sous-categories">
+                      <button
+                        className={`preview-subtab ${previewSubcategory === "" ? "active" : ""}`}
+                        onClick={() => setPreviewSubcategory("")}
+                        type="button"
+                      >
+                        Tout
+                      </button>
+                      {previewSubcategories.map((subcategory) => (
+                        <button
+                          className={`preview-subtab ${previewSubcategory === subcategory ? "active" : ""}`}
+                          key={subcategory}
+                          onClick={() => setPreviewSubcategory(subcategory)}
+                          type="button"
+                        >
+                          {subcategory}
+                        </button>
+                      ))}
+                    </nav>
+                  ) : null}
                   <div className="preview-content">
-                    {card.blocks.length === 0 ? (
+                    {previewBlocks.length === 0 ? (
                       <div className="canvas-empty">Aucun bloc a previsualiser</div>
                     ) : (
-                      card.blocks.map((block) => (
+                      previewBlocks.map((block) => (
                         <div className="preview-block" key={block.id}>
                           {renderBlock(block)}
                         </div>
