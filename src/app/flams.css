@@ -1,0 +1,212 @@
+.flams-tabs {
+  background: #61181e;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.flams-tab,
+.flams-subtab {
+  border-radius: 999px;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 12px;
+}
+
+.flams-tab {
+  background: #fffdec;
+  color: #61181e;
+}
+
+.flams-tab.active {
+  background: #f8af07;
+  color: #61181e;
+}
+
+.flams-subtabs {
+  background: #fff4d5;
+  border: 1px solid #f8af07;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.flams-subtab {
+  background: #ffffff;
+  color: #61181e;
+}
+
+.flams-category-title {
+  align-items: center;
+  background: #61181e;
+  border-radius: 8px;
+  color: #fffdec;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.flams-category-title span {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.flams-category-title small {
+  color: #f8af07;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.flams-category-description {
+  background: #fffdec;
+  border-left: 4px solid #f8af07;
+  border-radius: 6px;
+  color: #61181e;
+  font-size: 14px;
+  font-weight: 650;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.flams-product {
+  align-items: flex-start;
+  background: #fffdec;
+  border: 1px solid rgba(97, 24, 30, 0.16);
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(97, 24, 30, 0.08);
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  position: relative;
+}
+
+.flams-product.special {
+  border-color: #f8af07;
+}
+
+.flams-product.wine {
+  background: #fff8ee;
+}
+
+.flams-product-image {
+  border-radius: 8px;
+  height: 76px;
+  object-fit: cover;
+  width: 76px;
+}
+
+.flams-product-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.flams-product-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.flams-product h3 {
+  align-items: center;
+  color: #61181e;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 16px;
+  gap: 6px;
+  margin: 0;
+}
+
+.flams-product strong {
+  color: #e20e17;
+  flex: 0 0 auto;
+  font-size: 15px;
+}
+
+.flams-product p {
+  color: #3c0b0b;
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+.flams-badge {
+  background: #e20e17;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 7px;
+  position: absolute;
+  right: 10px;
+  top: -8px;
+}
+
+.flams-product-icon {
+  height: 20px;
+  object-fit: contain;
+  width: 20px;
+}
+
+.flams-promo {
+  align-items: center;
+  background: #f8af07;
+  border-radius: 12px;
+  color: #c8102e;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 22px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.flams-promo h3,
+.flams-promo p {
+  margin: 0;
+}
+
+.flams-promo h3 {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.flams-promo p {
+  color: #61181e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.flams-promo strong {
+  background: #c8102e;
+  border-radius: 999px;
+  color: #ffffff;
+  padding: 7px 12px;
+}
+
+.flams-recommend {
+  align-items: center;
+  background: #61181e;
+  border-radius: 8px;
+  color: #fffdec;
+  display: flex;
+  font-weight: 900;
+  gap: 10px;
+  justify-content: center;
+  padding: 13px;
+  width: 100%;
+}
+
+.flams-divider {
+  color: #61181e;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
