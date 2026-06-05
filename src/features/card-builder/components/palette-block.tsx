@@ -1,13 +1,14 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
+import type { ComponentType } from "react";
 import type { BlockType } from "@/domain/card/types";
 
 type PaletteBlockProps = {
   type: BlockType;
   label: string;
   description: string;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: ComponentType<{ size?: number }>;
 };
 
 export function PaletteBlock({
