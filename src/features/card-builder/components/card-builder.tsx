@@ -29,12 +29,42 @@ import { createFlamsTemplate } from "../templates/flams-template";
 import { CardCanvas } from "./card-canvas";
 import { InspectorPanel } from "./inspector-panel";
 import { PaletteBlock } from "./palette-block";
+import { PictoToken } from "./picto-token";
 
 type DragData = {
-  source?: "palette" | "canvas";
+  source?: "palette" | "canvas" | "picto";
   type?: BlockType;
   blockId?: string;
+  iconUrl?: string;
+  label?: string;
 };
+
+const pictos = [
+  {
+    id: "fait-maison",
+    label: "Fait maison",
+    url: "https://flams.fr/wp-content/uploads/2025/09/1.png",
+  },
+  {
+    id: "vege",
+    label: "Vege",
+    url: "https://flams.fr/wp-content/uploads/2025/10/3.png",
+  },
+];
+
+function getBlockCategory(block: CardBlock) {
+  const props = block.props as Partial<{ category: string }>;
+
+  if (props.category) {
+    return props.category;
+  }
+
+  if (block.type === "menuTabs" || block.type === "drinkSubTabs") {
+    return "global";
+  }
+
+  return "";
+}
 
 export function CardBuilder() {
   const [card, setCard] = useState<DigitalCard>(() => createCard());
@@ -42,6 +72,11 @@ export function CardBuilder() {
   const [activePaletteType, setActivePaletteType] = useState<BlockType | null>(
     null,
   );
+  const [activePicto, setActivePicto] = useState<{
+    label: string;
+    url: string;
+  } | null>(null);
+  const [activeCategory, setActiveCategory] = useState("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedBlock = useMemo(
@@ -59,6 +94,32 @@ export function CardBuilder() {
     }),
   );
 
+  const categories = useMemo(() => {
+    const categorySet = new Set<string>();
+
+    card.blocks.forEach((block) => {
+      const category = getBlockCategory(block);
+
+      if (category && category !== "global") {
+        categorySet.add(category);
+      }
+    });
+
+    return Array.from(categorySet);
+  }, [card.blocks]);
+
+  const visibleBlocks = useMemo(() => {
+    if (activeCategory === "all") {
+      return card.blocks;
+    }
+
+    return card.blocks.filter((block) => {
+      const category = getBlockCategory(block);
+
+      return !category || category === "global" || category === activeCategory;
+    });
+  }, [activeCategory, card.blocks]);
+
   useEffect(() => {
     const stored = loadStoredCard();
 
@@ -72,13 +133,41 @@ export function CardBuilder() {
     saveStoredCard(card);
   }, [card]);
 
+  useEffect(() => {
+    if (activeCategory !== "all" && !categories.includes(activeCategory)) {
+      setActiveCategory("all");
+    }
+  }, [activeCategory, categories]);
+
   function updateCard(updater: (current: DigitalCard) => DigitalCard) {
     setCard((current) => touchCard(updater(current)));
   }
 
+  function prepareBlockForActiveCategory(block: CardBlock) {
+    const props = block.props as Partial<{ category: string }>;
+
+    if (activeCategory === "all" || !("category" in props)) {
+      return block;
+    }
+
+    return {
+      ...block,
+      props: {
+        ...block.props,
+        category: activeCategory,
+      },
+    } as CardBlock;
+  }
+
   function handleDragStart(event: DragStartEvent) {
     const data = event.active.data.current as DragData;
+
     setActivePaletteType(data.source === "palette" ? data.type ?? null : null);
+    setActivePicto(
+      data.source === "picto" && data.iconUrl
+        ? { label: data.label ?? "Picto", url: data.iconUrl }
+        : null,
+    );
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -86,13 +175,38 @@ export function CardBuilder() {
     const data = active.data.current as DragData;
 
     setActivePaletteType(null);
+    setActivePicto(null);
 
     if (!over) {
       return;
     }
 
+    if (data.source === "picto" && data.iconUrl) {
+      const targetBlock = card.blocks.find((block) => block.id === over.id);
+
+      if (targetBlock?.type === "product") {
+        updateCard((current) => ({
+          ...current,
+          blocks: current.blocks.map((block) =>
+            block.id === targetBlock.id && block.type === "product"
+              ? {
+                  ...block,
+                  props: {
+                    ...block.props,
+                    iconUrl: data.iconUrl ?? "",
+                  },
+                }
+              : block,
+          ),
+        }));
+        setSelectedBlockId(targetBlock.id);
+      }
+
+      return;
+    }
+
     if (data.source === "palette" && data.type) {
-      const newBlock = createBlock(data.type);
+      const newBlock = prepareBlockForActiveCategory(createBlock(data.type));
       const overIndex = card.blocks.findIndex((block) => block.id === over.id);
       const insertIndex =
         over.id === "canvas" || overIndex < 0 ? card.blocks.length : overIndex;
@@ -144,7 +258,7 @@ export function CardBuilder() {
   }
 
   function addBlock(type: BlockType) {
-    const block = createBlock(type);
+    const block = prepareBlockForActiveCategory(createBlock(type));
 
     updateCard((current) => ({
       ...current,
@@ -166,6 +280,7 @@ export function CardBuilder() {
 
     setCard(template);
     setSelectedBlockId(template.blocks[0]?.id ?? null);
+    setActiveCategory("all");
   }
 
   function exportCard() {
@@ -233,6 +348,19 @@ export function CardBuilder() {
                 </button>
               ))}
             </div>
+            <div className="sidebar-section">
+              <h2 className="sidebar-section-title">Pictos produit</h2>
+              <div className="picto-palette">
+                {pictos.map((picto) => (
+                  <PictoToken
+                    id={picto.id}
+                    key={picto.id}
+                    label={picto.label}
+                    url={picto.url}
+                  />
+                ))}
+              </div>
+            </div>
             <button
               className="text-button primary"
               onClick={loadFlamsTemplate}
@@ -298,8 +426,29 @@ export function CardBuilder() {
               />
             </div>
           </header>
+          {categories.length > 0 ? (
+            <nav className="category-nav" aria-label="Categories de la carte">
+              <button
+                className={`category-chip ${activeCategory === "all" ? "active" : ""}`}
+                onClick={() => setActiveCategory("all")}
+                type="button"
+              >
+                Tout
+              </button>
+              {categories.map((category) => (
+                <button
+                  className={`category-chip ${activeCategory === category ? "active" : ""}`}
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  type="button"
+                >
+                  {category}
+                </button>
+              ))}
+            </nav>
+          ) : null}
           <CardCanvas
-            blocks={card.blocks}
+            blocks={visibleBlocks}
             onDeleteBlock={deleteBlock}
             onSelectBlock={setSelectedBlockId}
             selectedBlockId={selectedBlockId}
@@ -326,6 +475,11 @@ export function CardBuilder() {
                 {blockRegistry[activePaletteType].description}
               </span>
             </span>
+          </div>
+        ) : activePicto ? (
+          <div className="picto-token drag-preview">
+            <img alt="" src={activePicto.url} />
+            <span>{activePicto.label}</span>
           </div>
         ) : null}
       </DragOverlay>
