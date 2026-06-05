@@ -7,6 +7,7 @@ export type BlockType =
   | "menuCategory"
   | "categoryDescription"
   | "product"
+  | "alert"
   | "promo"
   | "recommend"
   | "divider";
@@ -51,13 +52,22 @@ export type CategoryDescriptionBlockProps = {
 export type ProductBlockProps = {
   title: string;
   price: string;
+  priceRows: string;
   description: string;
   category: string;
   subcategory: string;
   badge: string;
+  badgeImageUrl: string;
   iconUrl: string;
   imageUrl: string;
   variant: string;
+};
+
+export type AlertBlockProps = {
+  title: string;
+  body: string;
+  category: string;
+  variant: "formula" | "flame" | "info";
 };
 
 export type PromoBlockProps = {
@@ -85,6 +95,7 @@ export type BlockPropsByType = {
   menuCategory: MenuCategoryBlockProps;
   categoryDescription: CategoryDescriptionBlockProps;
   product: ProductBlockProps;
+  alert: AlertBlockProps;
   promo: PromoBlockProps;
   recommend: RecommendBlockProps;
   divider: DividerBlockProps;
