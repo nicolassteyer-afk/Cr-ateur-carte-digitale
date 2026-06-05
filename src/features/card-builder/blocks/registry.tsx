@@ -1,4 +1,5 @@
 import { ImageIcon, LayoutPanelTop, TypeIcon } from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
 import { createDefaultBlockProps } from "@/domain/card/defaults";
 import type {
   BlockPropsByType,
@@ -17,10 +18,10 @@ type BlockDefinition<TType extends BlockType> = {
   type: TType;
   label: string;
   description: string;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: ComponentType<{ size?: number }>;
   createDefaultProps: () => BlockPropsByType[TType];
   fields: Array<BlockField<BlockPropsByType[TType]>>;
-  render: (block: CardBlock<TType>) => React.ReactNode;
+  render: (block: CardBlock<TType>) => ReactNode;
 };
 
 function TextBlock({ props }: CardBlock<"text">) {
