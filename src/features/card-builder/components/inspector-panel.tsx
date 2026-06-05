@@ -37,23 +37,25 @@ export function InspectorPanel({ block, onChangeBlock }: InspectorPanelProps) {
       </div>
       <div className="panel-body">
         {definition.fields.map((field) => {
-          const value = String(block.props[field.key] ?? "");
+          const fieldKey = String(field.key);
+          const props = block.props as Record<string, string>;
+          const value = String(props[fieldKey] ?? "");
 
           return (
-            <div className="field" key={String(field.key)}>
-              <label htmlFor={`${block.id}-${String(field.key)}`}>
+            <div className="field" key={fieldKey}>
+              <label htmlFor={`${block.id}-${fieldKey}`}>
                 {field.label}
               </label>
               {field.input === "textarea" ? (
                 <textarea
-                  id={`${block.id}-${String(field.key)}`}
+                  id={`${block.id}-${fieldKey}`}
                   value={value}
                   onChange={(event) =>
                     onChangeBlock({
                       ...block,
                       props: {
                         ...block.props,
-                        [field.key]: event.target.value,
+                        [fieldKey]: event.target.value,
                       },
                     } as CardBlock)
                   }
@@ -61,14 +63,14 @@ export function InspectorPanel({ block, onChangeBlock }: InspectorPanelProps) {
               ) : null}
               {field.input === "text" ? (
                 <input
-                  id={`${block.id}-${String(field.key)}`}
+                  id={`${block.id}-${fieldKey}`}
                   value={value}
                   onChange={(event) =>
                     onChangeBlock({
                       ...block,
                       props: {
                         ...block.props,
-                        [field.key]: event.target.value,
+                        [fieldKey]: event.target.value,
                       },
                     } as CardBlock)
                   }
@@ -76,14 +78,14 @@ export function InspectorPanel({ block, onChangeBlock }: InspectorPanelProps) {
               ) : null}
               {field.input === "select" ? (
                 <select
-                  id={`${block.id}-${String(field.key)}`}
+                  id={`${block.id}-${fieldKey}`}
                   value={value}
                   onChange={(event) =>
                     onChangeBlock({
                       ...block,
                       props: {
                         ...block.props,
-                        [field.key]: event.target.value,
+                        [fieldKey]: event.target.value,
                       },
                     } as CardBlock)
                   }
