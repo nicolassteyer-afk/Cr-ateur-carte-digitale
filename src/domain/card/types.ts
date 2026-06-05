@@ -22,11 +22,14 @@ export type BlockPropsByType = {
   section: SectionBlockProps;
 };
 
-export type CardBlock<TType extends BlockType = BlockType> = {
-  id: string;
-  type: TType;
-  props: BlockPropsByType[TType];
-};
+export type CardBlock<TType extends BlockType = BlockType> =
+  TType extends BlockType
+    ? {
+        id: string;
+        type: TType;
+        props: BlockPropsByType[TType];
+      }
+    : never;
 
 export type DigitalCard = {
   id: string;
