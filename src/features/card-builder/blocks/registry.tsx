@@ -1,6 +1,7 @@
 import {
   BadgePercent,
   Beer,
+  Bell,
   Flame,
   ImageIcon,
   LayoutList,
@@ -78,6 +79,17 @@ function splitLines(value: string) {
     .filter(Boolean);
 }
 
+function splitPriceRows(value: string) {
+  return splitLines(value).map((line) => {
+    const [label, price] = line.split("|");
+
+    return {
+      label: label?.trim() ?? "",
+      price: price?.trim() ?? "",
+    };
+  });
+}
+
 function MenuTabsBlock({ props }: CardBlock<"menuTabs">) {
   return (
     <nav className="flams-tabs">
@@ -121,25 +133,59 @@ function CategoryDescriptionBlock({
 }
 
 function ProductBlock({ props }: CardBlock<"product">) {
+  const priceRows = splitPriceRows(props.priceRows ?? "");
+
   return (
     <article className={`flams-product ${props.variant}`}>
-      {props.badge ? <span className="flams-badge">{props.badge}</span> : null}
+      {props.badgeImageUrl ? (
+        <img className="flams-badge-image" src={props.badgeImageUrl} alt="" />
+      ) : props.badge ? (
+        <span className="flams-badge">{props.badge}</span>
+      ) : null}
       {props.imageUrl ? (
         <img className="flams-product-image" src={props.imageUrl} alt="" />
       ) : null}
       <div className="flams-product-main">
-        <div className="flams-product-header">
-          <h3>
-            {props.title}
-            {props.iconUrl ? (
-              <img className="flams-product-icon" src={props.iconUrl} alt="" />
-            ) : null}
-          </h3>
-          <strong>{props.price}</strong>
-        </div>
+        {priceRows.length > 0 ? (
+          <>
+            <h3>
+              {props.title}
+              {props.iconUrl ? (
+                <img className="flams-product-icon" src={props.iconUrl} alt="" />
+              ) : null}
+            </h3>
+            <div className="flams-price-list">
+              {priceRows.map((row) => (
+                <div className="flams-price-row" key={`${row.label}-${row.price}`}>
+                  <span>{row.label}</span>
+                  <strong>{row.price}</strong>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="flams-product-header">
+            <h3>
+              {props.title}
+              {props.iconUrl ? (
+                <img className="flams-product-icon" src={props.iconUrl} alt="" />
+              ) : null}
+            </h3>
+            <strong>{props.price}</strong>
+          </div>
+        )}
         {props.description ? <p>{props.description}</p> : null}
       </div>
     </article>
+  );
+}
+
+function AlertBlock({ props }: CardBlock<"alert">) {
+  return (
+    <section className={`flams-alert ${props.variant}`}>
+      {props.title ? <h3>{props.title}</h3> : null}
+      <p>{props.body}</p>
+    </section>
   );
 }
 
@@ -270,10 +316,12 @@ export const blockRegistry = {
     fields: [
       { key: "title", label: "Nom", input: "text" },
       { key: "price", label: "Prix", input: "text" },
+      { key: "priceRows", label: "Prix multiples (format: taille|prix)", input: "textarea" },
       { key: "description", label: "Description", input: "textarea" },
       { key: "category", label: "Categorie", input: "text" },
       { key: "subcategory", label: "Sous-categorie", input: "text" },
       { key: "badge", label: "Badge", input: "text" },
+      { key: "badgeImageUrl", label: "URL badge image", input: "text" },
       { key: "iconUrl", label: "URL picto", input: "text" },
       { key: "imageUrl", label: "URL image", input: "text" },
       {
@@ -288,6 +336,29 @@ export const blockRegistry = {
       },
     ],
     render: ProductBlock,
+  },
+  alert: {
+    type: "alert",
+    label: "Alerte",
+    description: "Encart information, formule ou flamme",
+    icon: Bell,
+    createDefaultProps: () => createDefaultBlockProps("alert"),
+    fields: [
+      { key: "title", label: "Titre", input: "text" },
+      { key: "body", label: "Texte", input: "textarea" },
+      { key: "category", label: "Categorie", input: "text" },
+      {
+        key: "variant",
+        label: "Style",
+        input: "select",
+        options: [
+          { label: "Info", value: "info" },
+          { label: "Formule", value: "formula" },
+          { label: "Flamme", value: "flame" },
+        ],
+      },
+    ],
+    render: AlertBlock,
   },
   promo: {
     type: "promo",
@@ -346,6 +417,8 @@ export function renderBlock(block: CardBlock) {
       return blockRegistry.categoryDescription.render(block);
     case "product":
       return blockRegistry.product.render(block);
+    case "alert":
+      return blockRegistry.alert.render(block);
     case "promo":
       return blockRegistry.promo.render(block);
     case "recommend":
