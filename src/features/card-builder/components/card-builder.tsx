@@ -15,11 +15,19 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Download, Plus, RotateCcw, Save, Upload } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Save,
+  Upload,
+} from "lucide-react";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createBlock, createCard, touchCard } from "@/domain/card/factory";
 import type { BlockType, CardBlock, DigitalCard } from "@/domain/card/types";
-import { availableBlocks, blockRegistry } from "../blocks/registry";
+import { availableBlocks, blockRegistry, renderBlock } from "../blocks/registry";
 import {
   clearStoredCard,
   loadStoredCard,
@@ -77,6 +85,7 @@ export function CardBuilder() {
     url: string;
   } | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [workspaceMode, setWorkspaceMode] = useState<"edit" | "preview">("edit");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedBlock = useMemo(
@@ -385,6 +394,26 @@ export function CardBuilder() {
               }
             />
             <div className="toolbar">
+              <div className="view-switch" aria-label="Mode affichage">
+                <button
+                  className={`view-switch-button ${workspaceMode === "edit" ? "active" : ""}`}
+                  onClick={() => setWorkspaceMode("edit")}
+                  title="Edition"
+                  type="button"
+                >
+                  <Pencil size={15} />
+                  <span>Edition</span>
+                </button>
+                <button
+                  className={`view-switch-button ${workspaceMode === "preview" ? "active" : ""}`}
+                  onClick={() => setWorkspaceMode("preview")}
+                  title="Previsualisation"
+                  type="button"
+                >
+                  <Eye size={15} />
+                  <span>Preview</span>
+                </button>
+              </div>
               <button
                 className="icon-button"
                 onClick={() => saveStoredCard(card)}
@@ -426,7 +455,7 @@ export function CardBuilder() {
               />
             </div>
           </header>
-          {categories.length > 0 ? (
+          {workspaceMode === "edit" && categories.length > 0 ? (
             <nav className="category-nav" aria-label="Categories de la carte">
               <button
                 className={`category-chip ${activeCategory === "all" ? "active" : ""}`}
@@ -447,12 +476,36 @@ export function CardBuilder() {
               ))}
             </nav>
           ) : null}
-          <CardCanvas
-            blocks={visibleBlocks}
-            onDeleteBlock={deleteBlock}
-            onSelectBlock={setSelectedBlockId}
-            selectedBlockId={selectedBlockId}
-          />
+          {workspaceMode === "edit" ? (
+            <CardCanvas
+              blocks={visibleBlocks}
+              onDeleteBlock={deleteBlock}
+              onSelectBlock={setSelectedBlockId}
+              selectedBlockId={selectedBlockId}
+            />
+          ) : (
+            <main className="workspace">
+              <div className="preview-wrap">
+                <section className="card-preview" aria-label="Previsualisation de la carte">
+                  <header className="preview-header">
+                    <span>Carte digitale</span>
+                    <strong>{card.title}</strong>
+                  </header>
+                  <div className="preview-content">
+                    {card.blocks.length === 0 ? (
+                      <div className="canvas-empty">Aucun bloc a previsualiser</div>
+                    ) : (
+                      card.blocks.map((block) => (
+                        <div className="preview-block" key={block.id}>
+                          {renderBlock(block)}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </section>
+              </div>
+            </main>
+          )}
         </section>
 
         <InspectorPanel block={selectedBlock} onChangeBlock={updateBlock} />
