@@ -25,6 +25,7 @@ import {
   loadStoredCard,
   saveStoredCard,
 } from "../storage/card-storage";
+import { createFlamsTemplate } from "../templates/flams-template";
 import { CardCanvas } from "./card-canvas";
 import { InspectorPanel } from "./inspector-panel";
 import { PaletteBlock } from "./palette-block";
@@ -160,6 +161,13 @@ export function CardBuilder() {
     setSelectedBlockId(null);
   }
 
+  function loadFlamsTemplate() {
+    const template = createFlamsTemplate();
+
+    setCard(template);
+    setSelectedBlockId(template.blocks[0]?.id ?? null);
+  }
+
   function exportCard() {
     const blob = new Blob([JSON.stringify(card, null, 2)], {
       type: "application/json",
@@ -225,6 +233,13 @@ export function CardBuilder() {
                 </button>
               ))}
             </div>
+            <button
+              className="text-button primary"
+              onClick={loadFlamsTemplate}
+              type="button"
+            >
+              Modele Flam's
+            </button>
           </div>
         </aside>
 
